@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
     </Reference>
@@ -42,13 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Customer.cs" />
+    <Compile Include="CustomerDetails.cs" />
     <Compile Include="CustomerIO.cs" />
     <Compile Include="CustomerIoApiException.cs" />
-    <Compile Include="ICustomer.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
+    <Compile Include="ICustomerDetails.cs" />
     <Compile Include="ICustomerFactory.cs" />
+    <Compile Include="JsonSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestClientExtensions.cs" />
+    <Compile Include="UnixTimestampConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

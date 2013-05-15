@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using RestSharp;
+using RestSharp.Serializers;
 
 namespace CustomerIOSharp
 {
@@ -32,25 +30,20 @@ namespace CustomerIOSharp
                 };
         }
 
-        private async Task CallMethodAsync(string method, Method httpMethod, IDictionary<string, string> data)
+        private async Task CallMethodAsync(string method, string customerId, Method httpMethod, object data)
         {
-            var customer = _customerFactory.GetCustomer();
-            // do not transmit events when we do not have a customer id
-            if (customer == null) return;
+            // do not transmit events if we do not have a customer id
+            if (customerId == null) return;
 
             var request = new RestRequest(method)
             {
-                Method = httpMethod
+                Method = httpMethod,
+                RequestFormat = DataFormat.Json,
+                JsonSerializer = new JsonSerializer()
             };
-            request.AddUrlSegment(@"customer_id", customer.Id);
-            if (data != null)
-            {
-                foreach (var kvp in data)
-                {
-                    request.AddParameter(kvp.Key, kvp.Value);
-                }
-            }
-
+            request.AddUrlSegment(@"customer_id", customerId);
+            request.AddBody(data);
+            
             var response = await _client.ExecuteAsync(request);
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -60,18 +53,15 @@ namespace CustomerIOSharp
 
         public async Task IdentifyAsync()
         {
-            var customer = _customerFactory.GetCustomer();
-            // do not transmit events when we do not have a customer id
-            if (customer == null) return;
+            var id = _customerFactory.GetCustomerId();
 
-            var data = customer.Data;
-            data["email"] = customer.Email;
-            await CallMethodAsync(MethodCustomer, Method.PUT, data);
+            await CallMethodAsync(MethodCustomer, id, Method.PUT, _customerFactory.GetCustomerDetails());
         }
 
         public async Task DeleteCustomerAsync()
         {
-            await CallMethodAsync(MethodCustomer, Method.DELETE, new Dictionary<string, string>());
+            var id = _customerFactory.GetCustomerId();
+            await CallMethodAsync(MethodCustomer, id, Method.DELETE, null);
         }
 
         /// <summary>
@@ -81,18 +71,24 @@ namespace CustomerIOSharp
         /// <param name="data">Any related information you’d like to attach to this event. These attributes can be used in your triggers to control who should receive the triggered email. You can set any number of data key and values.</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TrackEventAsync(string eventName, IDictionary<string, string> data = null)
+        public async Task TrackEventAsync(string eventName, object data = null)
         {
-            if (data == null)
-            {
-                data = new Dictionary<string, string>();
-            }
-            data = data.Select(kvp => new KeyValuePair<string, string>(string.Format("data[{0}]", kvp.Key), kvp.Value))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var id = _customerFactory.GetCustomerId();
 
-            data["name"] = eventName;
+            var wrappedData = new TrackedEvent
+                {
+                    Name = eventName,
+                    Data = data
+                };
 
-            await CallMethodAsync(MethodTrack, Method.POST, data);
+            await CallMethodAsync(MethodTrack, id, Method.POST, wrappedData);
         }
+    }
+
+    [SerializeAs(NameStyle = NameStyle.CamelCase)]
+    class TrackedEvent
+    {
+        public string Name { get; set; }
+        public object Data { get; set; }
     }
 }

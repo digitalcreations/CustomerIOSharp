@@ -2,6 +2,8 @@
 {
     public interface ICustomerFactory
     {
-        ICustomer GetCustomer();
+        string GetCustomerId();
+
+        ICustomerDetails GetCustomerDetails();
     }
 }
