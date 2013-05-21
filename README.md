@@ -13,16 +13,24 @@ Using Nuget:
 You will need to implement the `ICustomerFactory` interface yourself. Here is a suggested implementation used in one of my projects:
 
 ```cs
-public class CustomerFactory : ICustomerFactory
-{
-    public ICustomer GetCustomer()
+    public class CustomerFactory : ICustomerFactory
     {
-        var user = MembershipHelper.GetCurrentUser();
-	    return user == null 
-			? null 
-			: new Customer(Convert.ToString(user.Id), user.Email);
+        public ICustomerDetails GetCustomerDetails()
+        {
+            var user = MembershipHelper.GetCurrentUser();
+            return user == null 
+                ? null 
+                : user.AsCustomer();
+        }
+
+        public string GetCustomerId()
+        {
+            var user = MembershipHelper.GetCurrentUser();
+            return user == null
+                ? null
+                : user.UserId.ToString();
+        }
     }
-}
 ```
 
 Then instantiate `CustomerIo` and call `IdentifyAsync()`:
@@ -39,13 +47,16 @@ You should most likely only call `IdentifyAsync()` whenever the user logs in or 
 
 ### Custom events
 
-Track a custom event by calling `TrackEvent()`. It takes an event name as the first parameter, the second parameter is a map of name and value strings. Note that it automatically posts using the correct customer (gotten from the `ICustomerFactory`).
+Track a custom event by calling `TrackEvent()`. It takes an event name as the first parameter, the second parameter is any serializable object. Note that it automatically posts using the correct customer (gotten from the `ICustomerFactory`).
 
 ```cs
-await customerIo.TrackEventAsync("signup", new Dictionary<string, string> {
-	{ "customerGroup", "trial" }
+await customerIo.TrackEventAsync("signup", new {
+	Group: "trial",
+	Referrer: "email campaign"
 });
 ```
+
+Note that these two variables will be camelcased before being sent to customer.io, so `group` and `referrer` will be available in your transactional campaigns.
 
 ## License
 
