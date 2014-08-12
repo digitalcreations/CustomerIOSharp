@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using RestSharp;
 using RestSharp.Serializers;
@@ -69,16 +70,18 @@ namespace CustomerIOSharp
         /// </summary>
         /// <param name="eventName">The name of the event you want to track</param>
         /// <param name="data">Any related information you’d like to attach to this event. These attributes can be used in your triggers to control who should receive the triggered email. You can set any number of data key and values.</param>
+        /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TrackEventAsync(string eventName, object data = null)
+        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
         {
             var id = _customerFactory.GetCustomerId();
 
             var wrappedData = new TrackedEvent
                 {
                     Name = eventName,
-                    Data = data
+                    Data = data,
+                    Timestamp = timestamp
                 };
 
             await CallMethodAsync(MethodTrack, id, Method.POST, wrappedData);
@@ -90,5 +93,6 @@ namespace CustomerIOSharp
     {
         public string Name { get; set; }
         public object Data { get; set; }
+        public DateTime? Timestamp { get; set; }
     }
 }
