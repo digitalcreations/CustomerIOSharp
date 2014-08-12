@@ -2,19 +2,19 @@
 <package >
   <metadata>
     <id>CustomerIOSharp</id>
-    <version>0.2</version>
+    <version>0.3</version>
     <title>Customer.io C# implementation</title>
     <authors>vegardlarsen</authors>
     <owners>vegardlarsen</owners>
     <projectUrl>http://github.com/digitalcreations/CustomerIOSharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Implementation of Customer.io's write-only API for .NET.</description>
-    <releaseNotes>Allows statically typed events.</releaseNotes>
-    <copyright>Copyright 2013 Digital Creations AS.</copyright>
+    <releaseNotes>Allow back-dating events.</releaseNotes>
+    <copyright>Copyright 2014 Digital Creations AS.</copyright>
     <tags>customer-io customerio email</tags>
     <dependencies>
-      <dependency id="RestSharp" version="104.1" />
-      <dependency id="Newtonsoft.Json" version="5.0.5" />
+      <dependency id="RestSharp" version="104.4.0" />
+      <dependency id="Newtonsoft.Json" version="6.0.4" />
     </dependencies>
   </metadata>
 </package>
