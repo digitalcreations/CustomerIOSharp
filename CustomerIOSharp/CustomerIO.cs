@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using RestSharp;
-using RestSharp.Serializers;
+using RestSharp.Portable;
+using RestSharp.Portable.Authenticators;
+using Method = System.Net.Http.HttpMethod;
+using System.Text;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace CustomerIOSharp
 {
@@ -27,7 +31,7 @@ namespace CustomerIOSharp
 
             _client = new RestClient(Endpoint)
                 {
-                    Authenticator = new HttpBasicAuthenticator(_siteId, _apiKey)
+					Authenticator = new FixedHttpBasicAuthenticator(_siteId, _apiKey)
                 };
         }
 
@@ -39,30 +43,29 @@ namespace CustomerIOSharp
             var request = new RestRequest(method)
             {
                 Method = httpMethod,
-                RequestFormat = DataFormat.Json,
-                JsonSerializer = new JsonSerializer()
+                //RequestFormat = DataFormat.Json,
+				Serializer = new JsonSerializer()
             };
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
             
-            var response = await _client.ExecuteAsync(request);
+            var response = await _client.Execute(request);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new CustomerIoApiException(response.StatusCode);
             }
         }
 
-        public async Task IdentifyAsync()
+        public Task IdentifyAsync()
         {
             var id = _customerFactory.GetCustomerId();
-
-            await CallMethodAsync(MethodCustomer, id, Method.PUT, _customerFactory.GetCustomerDetails());
+            return CallMethodAsync(MethodCustomer, id, Method.Put, _customerFactory.GetCustomerDetails());
         }
 
-        public async Task DeleteCustomerAsync()
+        public Task DeleteCustomerAsync()
         {
             var id = _customerFactory.GetCustomerId();
-            await CallMethodAsync(MethodCustomer, id, Method.DELETE, null);
+			return CallMethodAsync(MethodCustomer, id, Method.Delete, null);
         }
 
         /// <summary>
@@ -73,7 +76,7 @@ namespace CustomerIOSharp
         /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
+        public Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
         {
             var id = _customerFactory.GetCustomerId();
 
@@ -84,15 +87,45 @@ namespace CustomerIOSharp
                     Timestamp = timestamp
                 };
 
-            await CallMethodAsync(MethodTrack, id, Method.POST, wrappedData);
+			return CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
         }
     }
 
-    [SerializeAs(NameStyle = NameStyle.CamelCase)]
-    class TrackedEvent
+    //[SerializeAs(NameStyle = NameStyle.CamelCase)]
+    public class TrackedEvent
     {
         public string Name { get; set; }
         public object Data { get; set; }
         public DateTime? Timestamp { get; set; }
     }
+
+	class FixedHttpBasicAuthenticator : IAuthenticator
+	{
+		private readonly string _authHeader;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="HttpBasicAuthenticator" /> class.
+		/// </summary>
+		/// <param name="username">User name</param>
+		/// <param name="password">The users password</param>
+		public FixedHttpBasicAuthenticator(string username, string password)
+		{
+			var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", username, password)));
+			_authHeader = string.Format("Basic {0}", token);
+		}
+
+		/// <summary>
+		/// Modifies the request to ensure that the authentication requirements are met.
+		/// </summary>
+		/// <param name="client">Client executing this request</param>
+		/// <param name="request">Request to authenticate</param>
+		public void Authenticate(IRestClient client, IRestRequest request)
+		{
+			// only add the Authorization parameter if it hasn't been added by a previous Execute
+			if (request.Parameters.Any(p => p.Name != null && p.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
+				return;
+			request.AddParameter("Authorization", _authHeader, ParameterType.HttpHeader);
+		}
+	}
+
 }
