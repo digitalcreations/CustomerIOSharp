@@ -99,6 +99,10 @@ namespace CustomerIOSharp
         public DateTime? Timestamp { get; set; }
     }
 
+    // NOTE
+    // Default HttpBasicAuthenticator crashes in Authenticate method with NullReferenceException
+    // because it does not check parameter's Name for null (see parameters.Any (...) call)
+    // This class fixes the issue
     class FixedHttpBasicAuthenticator : IAuthenticator
     {
         private readonly string _authHeader;
