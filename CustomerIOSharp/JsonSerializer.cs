@@ -43,7 +43,7 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer()
         {
-			ContentType = new MediaTypeHeaderValue("application/json");
+            ContentType = new MediaTypeHeaderValue("application/json");
             _serializer = new Newtonsoft.Json.JsonSerializer
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -64,7 +64,7 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer(Newtonsoft.Json.JsonSerializer serializer)
         {
-			ContentType = new MediaTypeHeaderValue("application/json");
+            ContentType = new MediaTypeHeaderValue("application/json");
             _serializer = serializer;
         }
 
@@ -75,25 +75,25 @@ namespace CustomerIOSharp
         /// <returns>JSON as String</returns>
         public byte[] Serialize(object obj)
         {
-			using (var stringWriter = new StringWriter())
-			{
-				using (var jsonTextWriter = new JsonTextWriter(stringWriter))
-				{
-					jsonTextWriter.Formatting = Formatting.Indented;
-					jsonTextWriter.QuoteChar = '"';
+            using (var stringWriter = new StringWriter())
+            {
+                using (var jsonTextWriter = new JsonTextWriter(stringWriter))
+                {
+                    jsonTextWriter.Formatting = Formatting.Indented;
+                    jsonTextWriter.QuoteChar = '"';
 
-					_serializer.Serialize(jsonTextWriter, obj);
+                    _serializer.Serialize(jsonTextWriter, obj);
 
-					var result = stringWriter.ToString();
-					return Encoding.UTF8.GetBytes (result);
-				}
-			}
+                    var result = stringWriter.ToString();
+                    return Encoding.UTF8.GetBytes (result);
+                }
+            }
 
         }
 
         /// <summary>
         /// Content type for serialized content
         /// </summary>
-		public MediaTypeHeaderValue ContentType { get; set; }
+        public MediaTypeHeaderValue ContentType { get; set; }
     }
 }

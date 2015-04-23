@@ -31,7 +31,7 @@ namespace CustomerIOSharp
 
             _client = new RestClient(Endpoint)
                 {
-					Authenticator = new FixedHttpBasicAuthenticator(_siteId, _apiKey)
+                    Authenticator = new FixedHttpBasicAuthenticator(_siteId, _apiKey)
                 };
         }
 
@@ -44,7 +44,7 @@ namespace CustomerIOSharp
             {
                 Method = httpMethod,
                 //RequestFormat = DataFormat.Json,
-				Serializer = new JsonSerializer()
+                Serializer = new JsonSerializer()
             };
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
@@ -65,7 +65,7 @@ namespace CustomerIOSharp
         public Task DeleteCustomerAsync()
         {
             var id = _customerFactory.GetCustomerId();
-			return CallMethodAsync(MethodCustomer, id, Method.Delete, null);
+            return CallMethodAsync(MethodCustomer, id, Method.Delete, null);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace CustomerIOSharp
                     Timestamp = timestamp
                 };
 
-			return CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
+            return CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
         }
     }
 
@@ -99,33 +99,33 @@ namespace CustomerIOSharp
         public DateTime? Timestamp { get; set; }
     }
 
-	class FixedHttpBasicAuthenticator : IAuthenticator
-	{
-		private readonly string _authHeader;
+    class FixedHttpBasicAuthenticator : IAuthenticator
+    {
+        private readonly string _authHeader;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="HttpBasicAuthenticator" /> class.
-		/// </summary>
-		/// <param name="username">User name</param>
-		/// <param name="password">The users password</param>
-		public FixedHttpBasicAuthenticator(string username, string password)
-		{
-			var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", username, password)));
-			_authHeader = string.Format("Basic {0}", token);
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpBasicAuthenticator" /> class.
+        /// </summary>
+        /// <param name="username">User name</param>
+        /// <param name="password">The users password</param>
+        public FixedHttpBasicAuthenticator(string username, string password)
+        {
+            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", username, password)));
+            _authHeader = string.Format("Basic {0}", token);
+        }
 
-		/// <summary>
-		/// Modifies the request to ensure that the authentication requirements are met.
-		/// </summary>
-		/// <param name="client">Client executing this request</param>
-		/// <param name="request">Request to authenticate</param>
-		public void Authenticate(IRestClient client, IRestRequest request)
-		{
-			// only add the Authorization parameter if it hasn't been added by a previous Execute
-			if (request.Parameters.Any(p => p.Name != null && p.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
-				return;
-			request.AddParameter("Authorization", _authHeader, ParameterType.HttpHeader);
-		}
-	}
+        /// <summary>
+        /// Modifies the request to ensure that the authentication requirements are met.
+        /// </summary>
+        /// <param name="client">Client executing this request</param>
+        /// <param name="request">Request to authenticate</param>
+        public void Authenticate(IRestClient client, IRestRequest request)
+        {
+            // only add the Authorization parameter if it hasn't been added by a previous Execute
+            if (request.Parameters.Any(p => p.Name != null && p.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
+                return;
+            request.AddParameter("Authorization", _authHeader, ParameterType.HttpHeader);
+        }
+    }
 
 }
