@@ -11,39 +11,6 @@ using System.Threading;
 
 namespace CustomerIOSharp
 {
-    #region AsyncLock class
-    
-    // see https://github.com/FubarDevelopment/restsharp.portable/issues/25
-    public sealed class AsyncLock
-    {
-        private readonly SemaphoreSlim m_semaphore = new SemaphoreSlim(1, 1);
-        private readonly Task<IDisposable> m_releaser;
-
-        public AsyncLock()
-        {
-            m_releaser = Task.FromResult((IDisposable)new Releaser(this));
-        }
-
-        public Task<IDisposable> LockAsync()
-        {
-            var wait = m_semaphore.WaitAsync();
-            return wait.IsCompleted ?
-                m_releaser :
-                wait.ContinueWith((_, state) => (IDisposable)state,
-                    m_releaser.Result, CancellationToken.None,
-                    TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
-        }
-
-        private sealed class Releaser : IDisposable
-        {
-            private readonly AsyncLock m_toRelease;
-            internal Releaser(AsyncLock toRelease) { m_toRelease = toRelease; }
-            public void Dispose() { m_toRelease.m_semaphore.Release(); }
-        }
-    }
-
-    #endregion
-
     public class CustomerIo
     {
         private readonly string _siteId;
@@ -56,7 +23,6 @@ namespace CustomerIOSharp
         private const string MethodTrack = "customers/{customer_id}/events";
 
         private readonly RestClient _client;
-        private readonly AsyncLock _lock = new AsyncLock ();
 
         public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory)
         {
@@ -84,12 +50,7 @@ namespace CustomerIOSharp
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
             
-            IRestResponse response;
-            using (await _lock.LockAsync ().ConfigureAwait (false))
-            {
-                response = await _client.Execute(request).ConfigureAwait (false);
-            }
-
+            var response = await _client.Execute(request).ConfigureAwait (false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new CustomerIoApiException(response.StatusCode);
