@@ -51,8 +51,8 @@ Track a custom event by calling `TrackEvent()`. It takes an event name as the fi
 
 ```cs
 await customerIo.TrackEventAsync("signup", new {
-	Group: "trial",
-	Referrer: "email campaign"
+	Group = "trial",
+	Referrer = "email campaign"
 });
 ```
 
