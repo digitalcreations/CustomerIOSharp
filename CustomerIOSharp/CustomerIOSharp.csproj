@@ -61,6 +61,7 @@
     <Compile Include="UnixTimestampConverter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CustomerIOSharp.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
