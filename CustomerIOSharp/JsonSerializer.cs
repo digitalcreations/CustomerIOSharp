@@ -12,6 +12,11 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
+using System.Net.Http.Headers;
+using System.Text;
+using System;
+
+
 #endregion
 #region Acknowledgements
 // Original JsonSerializer contributed by Daniel Crenna (@dimebrain)
@@ -21,7 +26,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using RestSharp.Serializers;
+using RestSharp.Portable.Serializers;
 
 namespace CustomerIOSharp
 {
@@ -38,7 +43,7 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer()
         {
-            ContentType = "application/json";
+            ContentType = new MediaTypeHeaderValue("application/json");
             _serializer = new Newtonsoft.Json.JsonSerializer
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -59,7 +64,7 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer(Newtonsoft.Json.JsonSerializer serializer)
         {
-            ContentType = "application/json";
+            ContentType = new MediaTypeHeaderValue("application/json");
             _serializer = serializer;
         }
 
@@ -68,7 +73,7 @@ namespace CustomerIOSharp
         /// </summary>
         /// <param name="obj">Object to serialize</param>
         /// <returns>JSON as String</returns>
-        public string Serialize(object obj)
+        public byte[] Serialize(object obj)
         {
             using (var stringWriter = new StringWriter())
             {
@@ -80,26 +85,15 @@ namespace CustomerIOSharp
                     _serializer.Serialize(jsonTextWriter, obj);
 
                     var result = stringWriter.ToString();
-                    return result;
+                    return Encoding.UTF8.GetBytes (result);
                 }
             }
+
         }
 
         /// <summary>
-        /// Unused for JSON Serialization
-        /// </summary>
-        public string DateFormat { get; set; }
-        /// <summary>
-        /// Unused for JSON Serialization
-        /// </summary>
-        public string RootElement { get; set; }
-        /// <summary>
-        /// Unused for JSON Serialization
-        /// </summary>
-        public string Namespace { get; set; }
-        /// <summary>
         /// Content type for serialized content
         /// </summary>
-        public string ContentType { get; set; }
+        public MediaTypeHeaderValue ContentType { get; set; }
     }
 }
