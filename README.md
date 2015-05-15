@@ -10,7 +10,7 @@ Using Nuget:
 
 ## Usage
 
-You will need to implement the `ICustomerFactory` interface yourself. Here is a suggested implementation used in one of my projects:
+We recommend you implement the `ICustomerFactory` interface yourself. Here is a suggested implementation used in one of my projects:
 
 ```cs
     public class CustomerFactory : ICustomerFactory
@@ -45,18 +45,41 @@ await customerIo.IdentifyAsync();
 
 You should most likely only call `IdentifyAsync()` whenever the user logs in or is changed.
 
+If you do not want to implement `ICustomerFactory`, you can simply provide the required details to each call:
+
+```cs
+await customerIo.IdentifyAsync(User.AsCustomer());
+```
+
+Whatever you do, you will have to provide customer data implementing `ICustomerDetails`. It has only two required properties, but any properties you supply in your implementation will be forwarded to customer.io:
+
+```cs
+class Customer : ICustomerDetails 
+{
+    // these two fields are required:
+    string Id { get; set; }
+    string Email { get; set; }
+    // these are my custom fields:
+    string FirstName { get; set; }
+    string LastName { get; set;
+}
+```
+
 ### Custom events
 
-Track a custom event by calling `TrackEvent()`. It takes an event name as the first parameter, the second parameter is any serializable object. Note that it automatically posts using the correct customer (gotten from the `ICustomerFactory`).
+Track a custom event by calling `TrackEvent()`. It takes an event name as the first parameter, the second parameter is any serializable object. Note that it automatically posts using the correct customer (using `ICustomerFactory`), but you can also supply your own.
 
 ```cs
 await customerIo.TrackEventAsync("signup", new {
 	Group = "trial",
 	Referrer = "email campaign"
 });
+
+// this event has no data and uses a different customer
+await customerIo.TrackEventAsync("signup", customerId: "foo");
 ```
 
-Note that these two variables will be camelcased before being sent to customer.io, so `group` and `referrer` will be available in your transactional campaigns.
+Note that these two variables will (by default) be camelcased before being sent to customer.io, so `group` and `referrer` will be available in your transactional campaigns.
 
 ## License
 

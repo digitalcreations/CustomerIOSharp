@@ -22,7 +22,7 @@
 
         private readonly RestClient _client;
 
-        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory, JsonSerializer jsonSerializer = null)
+        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory = null, JsonSerializer jsonSerializer = null)
         {
             this._customerFactory = customerFactory;
             this._jsonSerializer = jsonSerializer;
@@ -53,16 +53,30 @@
             }
         }
 
-        public async Task IdentifyAsync()
+        public async Task IdentifyAsync(ICustomerDetails customer = null)
         {
-            var id = this._customerFactory.GetCustomerId();
-            await this.CallMethodAsync(MethodCustomer, id, HttpMethod.Put, this._customerFactory.GetCustomerDetails());
+            if (customer == null && this._customerFactory == null)
+            {
+                throw new ArgumentNullException(
+                    "customer",
+                    "Missing both customer and customer factory, so can not determine who to track");
+            }
+
+            customer = customer ?? this._customerFactory.GetCustomerDetails();
+            await this.CallMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
         }
 
-        public async Task DeleteCustomerAsync()
+        public async Task DeleteCustomerAsync(string customerId = null)
         {
-            var id = this._customerFactory.GetCustomerId();
-            await this.CallMethodAsync(MethodCustomer, id, HttpMethod.Delete, null);
+            if (String.IsNullOrEmpty(customerId) && this._customerFactory == null)
+            {
+                throw new ArgumentNullException(
+                    "customerId",
+                    "Missing both customerId and customer factory, so can not determine who to track");
+            }
+
+            customerId = customerId ?? this._customerFactory.GetCustomerId();
+            await this.CallMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
         }
 
         /// <summary>
@@ -71,11 +85,18 @@
         /// <param name="eventName">The name of the event you want to track</param>
         /// <param name="data">Any related information you’d like to attach to this event. These attributes can be used in your triggers to control who should receive the triggered email. You can set any number of data key and values.</param>
         /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
+        /// <param name="customerId"></param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
+        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null, string customerId = null)
         {
-            var id = this._customerFactory.GetCustomerId();
+            if (String.IsNullOrEmpty(customerId) && this._customerFactory == null)
+            {
+                throw new ArgumentNullException(
+                    "customerId",
+                    "Missing both customerId and customer factory, so can not determine who to track");
+            }
+            customerId = customerId ?? this._customerFactory.GetCustomerId();
 
             var wrappedData = new TrackedEvent
                 {
@@ -84,7 +105,7 @@
                     Timestamp = timestamp
                 };
 
-            await this.CallMethodAsync(MethodTrack, id, HttpMethod.Post, wrappedData);
+            await this.CallMethodAsync(MethodTrack, customerId, HttpMethod.Post, wrappedData);
         }
     }
 }
