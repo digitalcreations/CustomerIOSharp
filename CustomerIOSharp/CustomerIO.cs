@@ -57,16 +57,16 @@ namespace CustomerIOSharp
             }
         }
 
-        public Task IdentifyAsync()
+        public async Task IdentifyAsync()
         {
             var id = _customerFactory.GetCustomerId();
-            return CallMethodAsync(MethodCustomer, id, Method.Put, _customerFactory.GetCustomerDetails());
+            await CallMethodAsync(MethodCustomer, id, Method.Put, _customerFactory.GetCustomerDetails());
         }
 
-        public Task DeleteCustomerAsync()
+        public async Task DeleteCustomerAsync()
         {
             var id = _customerFactory.GetCustomerId();
-            return CallMethodAsync(MethodCustomer, id, Method.Delete, null);
+            await CallMethodAsync(MethodCustomer, id, Method.Delete, null);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace CustomerIOSharp
         /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
+        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
         {
             var id = _customerFactory.GetCustomerId();
 
@@ -88,7 +88,7 @@ namespace CustomerIOSharp
                     Timestamp = timestamp
                 };
 
-            return CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
+            await CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
         }
     }
 
