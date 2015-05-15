@@ -4,7 +4,7 @@
     {
         public CustomerDetails(string email)
         {
-            Email = email;
+            this.Email = email;
         }
 
         public string Email { get; private set; }

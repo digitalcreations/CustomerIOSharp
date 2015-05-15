@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace CustomerIOSharp
+﻿namespace CustomerIOSharp
 {
+    using System;
+
     static class DateTimeExtensions
     {
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();

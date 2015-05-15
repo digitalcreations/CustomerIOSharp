@@ -12,24 +12,24 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
-using System.Net.Http.Headers;
-using System.Text;
-using System;
-
-
 #endregion
 #region Acknowledgements
 // Original JsonSerializer contributed by Daniel Crenna (@dimebrain)
 #endregion
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using RestSharp.Portable.Serializers;
 
 namespace CustomerIOSharp
 {
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http.Headers;
+    using System.Text;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+    using Newtonsoft.Json.Serialization;
+
+    using RestSharp.Portable.Serializers;
+
     /// <summary>
     /// Default JSON serializer for request bodies
     /// Doesn't currently use the SerializeAs attribute, defers to Newtonsoft's attributes
@@ -43,8 +43,8 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer()
         {
-            ContentType = new MediaTypeHeaderValue("application/json");
-            _serializer = new Newtonsoft.Json.JsonSerializer
+            this.ContentType = new MediaTypeHeaderValue("application/json");
+            this._serializer = new Newtonsoft.Json.JsonSerializer
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 NullValueHandling = NullValueHandling.Ignore,
@@ -52,11 +52,11 @@ namespace CustomerIOSharp
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             };
             
-            foreach (var converter in _serializer.Converters.OfType<DateTimeConverterBase>())
+            foreach (var converter in this._serializer.Converters.OfType<DateTimeConverterBase>())
             {
-                _serializer.Converters.Remove(converter);
+                this._serializer.Converters.Remove(converter);
             }
-            _serializer.Converters.Add(new UnixTimestampConverter());
+            this._serializer.Converters.Add(new UnixTimestampConverter());
         }
 
         /// <summary>
@@ -64,8 +64,8 @@ namespace CustomerIOSharp
         /// </summary>
         public JsonSerializer(Newtonsoft.Json.JsonSerializer serializer)
         {
-            ContentType = new MediaTypeHeaderValue("application/json");
-            _serializer = serializer;
+            this.ContentType = new MediaTypeHeaderValue("application/json");
+            this._serializer = serializer;
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace CustomerIOSharp
                     jsonTextWriter.Formatting = Formatting.Indented;
                     jsonTextWriter.QuoteChar = '"';
 
-                    _serializer.Serialize(jsonTextWriter, obj);
+                    this._serializer.Serialize(jsonTextWriter, obj);
 
                     var result = stringWriter.ToString();
                     return Encoding.UTF8.GetBytes (result);

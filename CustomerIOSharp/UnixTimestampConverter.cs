@@ -1,9 +1,10 @@
-﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace CustomerIOSharp
+﻿namespace CustomerIOSharp
 {
+    using System;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
+
     public class UnixTimestampConverter : DateTimeConverterBase
     {
         public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)

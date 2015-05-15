@@ -1,20 +1,14 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using RestSharp.Portable;
-using RestSharp.Portable.Authenticators;
-using Method = System.Net.Http.HttpMethod;
-using System.Text;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Threading;
-
-namespace CustomerIOSharp
+﻿namespace CustomerIOSharp
 {
+    using System;
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+
+    using RestSharp.Portable;
+
     public class CustomerIo
     {
-        private readonly string _siteId;
-        private readonly string _apiKey;
         private readonly ICustomerFactory _customerFactory;
 
         private const string Endpoint = "https://track.customer.io/api/v1/";
@@ -26,17 +20,15 @@ namespace CustomerIOSharp
 
         public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory)
         {
-            _siteId = siteId;
-            _apiKey = apiKey;
-            _customerFactory = customerFactory;
+            this._customerFactory = customerFactory;
 
-            _client = new RestClient(Endpoint)
+            this._client = new RestClient(Endpoint)
                 {
-                    Authenticator = new FixedHttpBasicAuthenticator(_siteId, _apiKey)
+                    Authenticator = new FixedHttpBasicAuthenticator(siteId, apiKey)
                 };
         }
 
-        private async Task CallMethodAsync(string method, string customerId, Method httpMethod, object data)
+        private async Task CallMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
         {
             // do not transmit events if we do not have a customer id
             if (customerId == null) return;
@@ -44,13 +36,12 @@ namespace CustomerIOSharp
             var request = new RestRequest(method)
             {
                 Method = httpMethod,
-                //RequestFormat = DataFormat.Json,
                 Serializer = new JsonSerializer()
             };
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
             
-            var response = await _client.Execute(request).ConfigureAwait (false);
+            var response = await this._client.Execute(request).ConfigureAwait (false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new CustomerIoApiException(response.StatusCode);
@@ -59,14 +50,14 @@ namespace CustomerIOSharp
 
         public async Task IdentifyAsync()
         {
-            var id = _customerFactory.GetCustomerId();
-            await CallMethodAsync(MethodCustomer, id, Method.Put, _customerFactory.GetCustomerDetails());
+            var id = this._customerFactory.GetCustomerId();
+            await this.CallMethodAsync(MethodCustomer, id, HttpMethod.Put, this._customerFactory.GetCustomerDetails());
         }
 
         public async Task DeleteCustomerAsync()
         {
-            var id = _customerFactory.GetCustomerId();
-            await CallMethodAsync(MethodCustomer, id, Method.Delete, null);
+            var id = this._customerFactory.GetCustomerId();
+            await this.CallMethodAsync(MethodCustomer, id, HttpMethod.Delete, null);
         }
 
         /// <summary>
@@ -79,7 +70,7 @@ namespace CustomerIOSharp
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
         public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null)
         {
-            var id = _customerFactory.GetCustomerId();
+            var id = this._customerFactory.GetCustomerId();
 
             var wrappedData = new TrackedEvent
                 {
@@ -88,49 +79,7 @@ namespace CustomerIOSharp
                     Timestamp = timestamp
                 };
 
-            await CallMethodAsync(MethodTrack, id, Method.Post, wrappedData);
+            await this.CallMethodAsync(MethodTrack, id, HttpMethod.Post, wrappedData);
         }
     }
-
-    //[SerializeAs(NameStyle = NameStyle.CamelCase)]
-    public class TrackedEvent
-    {
-        public string Name { get; set; }
-        public object Data { get; set; }
-        public DateTime? Timestamp { get; set; }
-    }
-
-    // NOTE
-    // Default HttpBasicAuthenticator crashes in Authenticate method with NullReferenceException
-    // because it does not check parameter's Name for null (see parameters.Any (...) call)
-    // This class fixes the issue
-    class FixedHttpBasicAuthenticator : IAuthenticator
-    {
-        private readonly string _authHeader;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HttpBasicAuthenticator" /> class.
-        /// </summary>
-        /// <param name="username">User name</param>
-        /// <param name="password">The users password</param>
-        public FixedHttpBasicAuthenticator(string username, string password)
-        {
-            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", username, password)));
-            _authHeader = string.Format("Basic {0}", token);
-        }
-
-        /// <summary>
-        /// Modifies the request to ensure that the authentication requirements are met.
-        /// </summary>
-        /// <param name="client">Client executing this request</param>
-        /// <param name="request">Request to authenticate</param>
-        public void Authenticate(IRestClient client, IRestRequest request)
-        {
-            // only add the Authorization parameter if it hasn't been added by a previous Execute
-            if (request.Parameters.Any(p => p.Name != null && p.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
-                return;
-            request.AddParameter("Authorization", _authHeader, ParameterType.HttpHeader);
-        }
-    }
-
 }

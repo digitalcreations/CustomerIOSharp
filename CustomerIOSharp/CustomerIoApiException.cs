@@ -1,8 +1,8 @@
-﻿using System;
-using System.Net;
-
-namespace CustomerIOSharp
+﻿namespace CustomerIOSharp
 {
+    using System;
+    using System.Net;
+
     public class CustomerIoApiException : Exception
     {
         public CustomerIoApiException(HttpStatusCode code)
