@@ -34,38 +34,31 @@ namespace CustomerIOSharp
     /// Default JSON serializer for request bodies
     /// Doesn't currently use the SerializeAs attribute, defers to Newtonsoft's attributes
     /// </summary>
-    public class JsonSerializer : ISerializer
+    public class SerializerWrapper : ISerializer
     {
         private readonly Newtonsoft.Json.JsonSerializer _serializer;
 
         /// <summary>
-        /// Default serializer
+        /// Default serializer with overload for allowing custom Json.NET settings
         /// </summary>
-        public JsonSerializer()
+        public SerializerWrapper(Newtonsoft.Json.JsonSerializer serializer = null)
         {
             this.ContentType = new MediaTypeHeaderValue("application/json");
-            this._serializer = new Newtonsoft.Json.JsonSerializer
-            {
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Include,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-            
+            this._serializer = serializer 
+                ?? new Newtonsoft.Json.JsonSerializer
+                       {
+                           MissingMemberHandling = MissingMemberHandling.Ignore,
+                           NullValueHandling = NullValueHandling.Ignore,
+                           DefaultValueHandling = DefaultValueHandling.Include,
+                           ContractResolver = new CamelCasePropertyNamesContractResolver()
+                       };
+
+            // make sure we use the correct datetime conversion so customer.io understands us
             foreach (var converter in this._serializer.Converters.OfType<DateTimeConverterBase>())
             {
                 this._serializer.Converters.Remove(converter);
             }
             this._serializer.Converters.Add(new UnixTimestampConverter());
-        }
-
-        /// <summary>
-        /// Default serializer with overload for allowing custom Json.NET settings
-        /// </summary>
-        public JsonSerializer(Newtonsoft.Json.JsonSerializer serializer)
-        {
-            this.ContentType = new MediaTypeHeaderValue("application/json");
-            this._serializer = serializer;
         }
 
         /// <summary>
@@ -85,10 +78,9 @@ namespace CustomerIOSharp
                     this._serializer.Serialize(jsonTextWriter, obj);
 
                     var result = stringWriter.ToString();
-                    return Encoding.UTF8.GetBytes (result);
+                    return Encoding.UTF8.GetBytes(result);
                 }
             }
-
         }
 
         /// <summary>

@@ -5,11 +5,15 @@
     using System.Net.Http;
     using System.Threading.Tasks;
 
+    using Newtonsoft.Json;
+
     using RestSharp.Portable;
 
     public class CustomerIo
     {
         private readonly ICustomerFactory _customerFactory;
+
+        private readonly JsonSerializer _jsonSerializer;
 
         private const string Endpoint = "https://track.customer.io/api/v1/";
 
@@ -18,9 +22,10 @@
 
         private readonly RestClient _client;
 
-        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory)
+        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory, JsonSerializer jsonSerializer = null)
         {
             this._customerFactory = customerFactory;
+            this._jsonSerializer = jsonSerializer;
 
             this._client = new RestClient(Endpoint)
                 {
@@ -36,7 +41,7 @@
             var request = new RestRequest(method)
             {
                 Method = httpMethod,
-                Serializer = new JsonSerializer()
+                Serializer = new SerializerWrapper(this._jsonSerializer)
             };
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
