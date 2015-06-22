@@ -54,7 +54,7 @@ namespace CustomerIOSharp
                        };
 
             // make sure we use the correct datetime conversion so customer.io understands us
-            foreach (var converter in this._serializer.Converters.OfType<DateTimeConverterBase>())
+            foreach (var converter in this._serializer.Converters.OfType<DateTimeConverterBase>().ToList())
             {
                 this._serializer.Converters.Remove(converter);
             }
