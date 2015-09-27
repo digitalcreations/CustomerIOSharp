@@ -18,7 +18,8 @@
         private const string Endpoint = "https://track.customer.io/api/v1/";
 
         private const string MethodCustomer = "customers/{customer_id}";
-        private const string MethodTrack = "customers/{customer_id}/events";
+        private const string MethodCustomerEvent = "customers/{customer_id}/events";
+        private const string MethodEvent = "events";
 
         private readonly RestClient _client;
 
@@ -33,7 +34,7 @@
                 };
         }
 
-        private async Task CallMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
+        private async Task CallCustomerMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
         {
             // do not transmit events if we do not have a customer id
             if (customerId == null) return;
@@ -45,8 +46,23 @@
             };
             request.AddUrlSegment(@"customer_id", customerId);
             request.AddBody(data);
-            
-            var response = await this._client.Execute(request).ConfigureAwait (false);
+            var response = await this._client.Execute(request).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new CustomerIoApiException(response.StatusCode);
+            }
+        }
+
+        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data)
+        {
+            var request = new RestRequest(method)
+            {
+                Method = httpMethod,
+                Serializer = new SerializerWrapper(this._jsonSerializer)
+            };
+            request.AddBody(data);
+
+            var response = await this._client.Execute(request).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 throw new CustomerIoApiException(response.StatusCode);
@@ -63,7 +79,7 @@
             }
 
             customer = customer ?? this._customerFactory.GetCustomerDetails();
-            await this.CallMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
+            await this.CallCustomerMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
         }
 
         public async Task DeleteCustomerAsync(string customerId = null)
@@ -76,7 +92,7 @@
             }
 
             customerId = customerId ?? this._customerFactory.GetCustomerId();
-            await this.CallMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
+            await this.CallCustomerMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
         }
 
         /// <summary>
@@ -90,13 +106,10 @@
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
         public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null, string customerId = null)
         {
-            if (String.IsNullOrEmpty(customerId) && this._customerFactory == null)
+            if (String.IsNullOrEmpty(customerId) && this._customerFactory != null)
             {
-                throw new ArgumentNullException(
-                    "customerId",
-                    "Missing both customerId and customer factory, so can not determine who to track");
+                customerId = customerId ?? this._customerFactory.GetCustomerId();
             }
-            customerId = customerId ?? this._customerFactory.GetCustomerId();
 
             var wrappedData = new TrackedEvent
                 {
@@ -105,7 +118,14 @@
                     Timestamp = timestamp
                 };
 
-            await this.CallMethodAsync(MethodTrack, customerId, HttpMethod.Post, wrappedData);
+            if (customerId != null)
+            {
+                await this.CallCustomerMethodAsync(MethodCustomerEvent, customerId, HttpMethod.Post, wrappedData);
+            }
+            else
+            {
+                await this.CallMethodAsync(MethodEvent, HttpMethod.Post, wrappedData);
+            }
         }
     }
 }
