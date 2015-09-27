@@ -34,32 +34,18 @@
                 };
         }
 
-        private async Task CallCustomerMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
+        private async Task CallMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
         {
-            // do not transmit events if we do not have a customer id
-            if (customerId == null) return;
-
             var request = new RestRequest(method)
             {
                 Method = httpMethod,
                 Serializer = new SerializerWrapper(this._jsonSerializer)
             };
-            request.AddUrlSegment(@"customer_id", customerId);
-            request.AddBody(data);
-            var response = await this._client.Execute(request).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.OK)
+            
+            if (customerId != null)
             {
-                throw new CustomerIoApiException(response.StatusCode);
+                request.AddUrlSegment(@"customer_id", customerId);
             }
-        }
-
-        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data)
-        {
-            var request = new RestRequest(method)
-            {
-                Method = httpMethod,
-                Serializer = new SerializerWrapper(this._jsonSerializer)
-            };
             request.AddBody(data);
 
             var response = await this._client.Execute(request).ConfigureAwait(false);
@@ -79,7 +65,11 @@
             }
 
             customer = customer ?? this._customerFactory.GetCustomerDetails();
-            await this.CallCustomerMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
+
+            // do not transmit events if we do not have a customer id
+            if (customer == null || customer.Id == null) return;
+
+            await this.CallMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
         }
 
         public async Task DeleteCustomerAsync(string customerId = null)
@@ -92,7 +82,11 @@
             }
 
             customerId = customerId ?? this._customerFactory.GetCustomerId();
-            await this.CallCustomerMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
+
+            // do not transmit events if we do not have a customer id
+            if (customerId == null) return;
+
+            await this.CallMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
         }
 
         /// <summary>
@@ -120,11 +114,11 @@
 
             if (customerId != null)
             {
-                await this.CallCustomerMethodAsync(MethodCustomerEvent, customerId, HttpMethod.Post, wrappedData);
+                await this.CallMethodAsync(MethodCustomerEvent, customerId, HttpMethod.Post, wrappedData);
             }
             else
             {
-                await this.CallMethodAsync(MethodEvent, HttpMethod.Post, wrappedData);
+                await this.CallMethodAsync(MethodEvent, customerId, HttpMethod.Post, wrappedData);
             }
         }
     }
