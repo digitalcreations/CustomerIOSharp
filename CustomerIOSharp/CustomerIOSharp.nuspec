@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>CustomerIOSharp</id>
-    <version>0.4</version>
+    <version>0.5</version>
     <title>Customer.io C# implementation</title>
     <authors>vegardlarsen</authors>
     <owners>vegardlarsen</owners>
     <projectUrl>http://github.com/digitalcreations/CustomerIOSharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Implementation of Customer.io's write-only API for .NET.</description>
-    <releaseNotes>Convert to PCL (Profile 78)</releaseNotes>
+    <releaseNotes>Support invitation (non-customer) events.</releaseNotes>
     <copyright>Copyright 2015 Digital Creations AS.</copyright>
     <tags>customer-io customerio email</tags>
     <dependencies>
@@ -17,4 +17,8 @@
       <dependency id="Newtonsoft.Json" version="6.0.8" />
     </dependencies>
   </metadata>
+
+  <files>
+    <file src="bin\release\CustomerIOSharp.dll" target="lib\portable-net45+netcore45+wp8\CustomerIOSharp.dll"></file>
+  </files>
 </package>
