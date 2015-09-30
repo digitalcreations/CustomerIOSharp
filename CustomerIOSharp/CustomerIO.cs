@@ -34,7 +34,7 @@
                 };
         }
 
-        private async Task CallMethodAsync(string method, string customerId, HttpMethod httpMethod, object data)
+        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data, string customerId = null)
         {
             var request = new RestRequest(method)
             {
@@ -42,7 +42,7 @@
                 Serializer = new SerializerWrapper(this._jsonSerializer)
             };
             
-            if (customerId != null)
+            if (!string.IsNullOrEmpty(customerId))
             {
                 request.AddUrlSegment(@"customer_id", customerId);
             }
@@ -69,7 +69,7 @@
             // do not transmit events if we do not have a customer id
             if (customer == null || customer.Id == null) return;
 
-            await this.CallMethodAsync(MethodCustomer, customer.Id, HttpMethod.Put, customer);
+            await this.CallMethodAsync(MethodCustomer, HttpMethod.Put, customer, customer.Id);
         }
 
         public async Task DeleteCustomerAsync(string customerId = null)
@@ -86,7 +86,7 @@
             // do not transmit events if we do not have a customer id
             if (customerId == null) return;
 
-            await this.CallMethodAsync(MethodCustomer, customerId, HttpMethod.Delete, null);
+            await this.CallMethodAsync(MethodCustomer, HttpMethod.Delete, null, customerId);
         }
 
         /// <summary>
@@ -95,12 +95,12 @@
         /// <param name="eventName">The name of the event you want to track</param>
         /// <param name="data">Any related information you’d like to attach to this event. These attributes can be used in your triggers to control who should receive the triggered email. You can set any number of data key and values.</param>
         /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
-        /// <param name="customerId"></param>
+        /// <param name="customerId">Specify customer id this is valid for, or null to look it up using the customer factory.</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
         public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null, string customerId = null)
         {
-            if (String.IsNullOrEmpty(customerId) && this._customerFactory != null)
+            if (string.IsNullOrEmpty(customerId) && this._customerFactory != null)
             {
                 customerId = customerId ?? this._customerFactory.GetCustomerId();
             }
@@ -112,14 +112,35 @@
                     Timestamp = timestamp
                 };
 
-            if (customerId != null)
+            await this.CallMethodAsync(
+                MethodCustomerEvent, 
+                HttpMethod.Post, 
+                wrappedData, 
+                customerId);
+        }
+
+        /// <summary>
+        /// Track a custom event for a non-customer.
+        /// </summary>
+        /// <see cref="http://customer.io/docs/invitation-emails.html" />
+        /// <param name="eventName">The name of the event you want to track</param>
+        /// <param name="data">Any related information you’d like to attach to this event. These attributes can be used in your triggers to control who should receive the triggered email. You can set any number of data key and values.</param>
+        /// <param name="timestamp">Allows you to back-date the event, pass null to use current time</param>
+        /// <returns>Nothing if successful, throws if failed</returns>
+        /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
+        public async Task TrackNonCustomerEventAsync(string eventName, object data = null, DateTime? timestamp = null)
+        {
+            var wrappedData = new TrackedEvent
             {
-                await this.CallMethodAsync(MethodCustomerEvent, customerId, HttpMethod.Post, wrappedData);
-            }
-            else
-            {
-                await this.CallMethodAsync(MethodEvent, customerId, HttpMethod.Post, wrappedData);
-            }
+                Name = eventName,
+                Data = data,
+                Timestamp = timestamp
+            };
+
+            await this.CallMethodAsync(
+                MethodEvent,
+                HttpMethod.Post,
+                wrappedData);
         }
     }
 }
