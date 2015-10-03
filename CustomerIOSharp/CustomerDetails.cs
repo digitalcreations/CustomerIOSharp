@@ -1,6 +1,6 @@
 ﻿namespace CustomerIOSharp
 {
-    public class CustomerDetails : ICustomerDetails
+    internal class CustomerDetails : ICustomerDetails
     {
         public CustomerDetails(string id, string email)
         {

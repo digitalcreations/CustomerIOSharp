@@ -11,15 +11,15 @@
 
     public class CustomerIo
     {
-        private readonly ICustomerFactory _customerFactory;
-
-        private readonly JsonSerializer _jsonSerializer;
-
         private const string Endpoint = "https://track.customer.io/api/v1/";
 
         private const string MethodCustomer = "customers/{customer_id}";
         private const string MethodCustomerEvent = "customers/{customer_id}/events";
         private const string MethodEvent = "events";
+
+        private readonly ICustomerFactory _customerFactory;
+
+        private readonly JsonSerializer _jsonSerializer;
 
         private readonly RestClient _client;
 
@@ -32,27 +32,6 @@
                 {
                     Authenticator = new FixedHttpBasicAuthenticator(siteId, apiKey)
                 };
-        }
-
-        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data, string customerId = null)
-        {
-            var request = new RestRequest(method)
-            {
-                Method = httpMethod,
-                Serializer = new SerializerWrapper(this._jsonSerializer)
-            };
-            
-            if (!string.IsNullOrEmpty(customerId))
-            {
-                request.AddUrlSegment(@"customer_id", customerId);
-            }
-            request.AddBody(data);
-
-            var response = await this._client.Execute(request).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new CustomerIoApiException(response.StatusCode);
-            }
         }
 
         public async Task IdentifyAsync(ICustomerDetails customer = null)
@@ -141,6 +120,28 @@
                 MethodEvent,
                 HttpMethod.Post,
                 wrappedData);
+        }
+
+        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data, string customerId = null)
+        {
+            var request = new RestRequest(method)
+            {
+                Method = httpMethod,
+                Serializer = new SerializerWrapper(this._jsonSerializer)
+            };
+
+            if (!string.IsNullOrEmpty(customerId))
+            {
+                request.AddUrlSegment(@"customer_id", customerId);
+            }
+
+            request.AddBody(data);
+
+            var response = await this._client.Execute(request).ConfigureAwait(false);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new CustomerIoApiException(response.StatusCode);
+            }
         }
     }
 }

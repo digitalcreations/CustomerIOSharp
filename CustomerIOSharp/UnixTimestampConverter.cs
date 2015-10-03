@@ -18,15 +18,18 @@
             {
                 throw new Exception("Expected date object value.");
             }
+
             writer.WriteValue(val);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
             if (reader.TokenType != JsonToken.Integer)
+            {
                 throw new Exception("Wrong Token Type");
+            }
 
-            var seconds = (int) reader.Value;
+            var seconds = (int)reader.Value;
             return seconds.ToDate();
         }
     }

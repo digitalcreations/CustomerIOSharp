@@ -34,7 +34,7 @@ namespace CustomerIOSharp
     /// Default JSON serializer for request bodies
     /// Doesn't currently use the SerializeAs attribute, defers to Newtonsoft's attributes
     /// </summary>
-    public class SerializerWrapper : ISerializer
+    internal class SerializerWrapper : ISerializer
     {
         private readonly Newtonsoft.Json.JsonSerializer _serializer;
 
@@ -58,8 +58,14 @@ namespace CustomerIOSharp
             {
                 this._serializer.Converters.Remove(converter);
             }
+
             this._serializer.Converters.Add(new UnixTimestampConverter());
         }
+
+        /// <summary>
+        /// Content type for serialized content
+        /// </summary>
+        public MediaTypeHeaderValue ContentType { get; set; }
 
         /// <summary>
         /// Serialize the object as JSON
@@ -82,10 +88,5 @@ namespace CustomerIOSharp
                 }
             }
         }
-
-        /// <summary>
-        /// Content type for serialized content
-        /// </summary>
-        public MediaTypeHeaderValue ContentType { get; set; }
     }
 }

@@ -6,6 +6,7 @@
     public interface ICustomerDetails
     {
         string Id { get; }
+
         string Email { get; }
     }
 }

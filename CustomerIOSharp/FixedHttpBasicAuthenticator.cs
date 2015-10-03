@@ -11,7 +11,7 @@ namespace CustomerIOSharp
     // Default HttpBasicAuthenticator crashes in Authenticate method with NullReferenceException
     // because it does not check parameter's Name for null (see parameters.Any (...) call)
     // This class fixes the issue
-    class FixedHttpBasicAuthenticator : IAuthenticator
+    internal class FixedHttpBasicAuthenticator : IAuthenticator
     {
         private readonly string _authHeader;
 
@@ -35,7 +35,10 @@ namespace CustomerIOSharp
         {
             // only add the Authorization parameter if it hasn't been added by a previous Execute
             if (request.Parameters.Any(p => p.Name != null && p.Name.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
+            {
                 return;
+            }
+
             request.AddParameter("Authorization", this._authHeader, ParameterType.HttpHeader);
         }
     }
