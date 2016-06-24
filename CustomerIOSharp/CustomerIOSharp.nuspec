@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>CustomerIOSharp</id>
-    <version>0.6</version>
+    <version>$version$</version>
     <title>Customer.io C# implementation</title>
     <authors>vegardlarsen</authors>
     <owners>vegardlarsen</owners>
