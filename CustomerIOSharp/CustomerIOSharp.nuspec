@@ -2,18 +2,18 @@
 <package >
   <metadata>
     <id>CustomerIOSharp</id>
-    <version>0.5</version>
+    <version>0.6</version>
     <title>Customer.io C# implementation</title>
     <authors>vegardlarsen</authors>
     <owners>vegardlarsen</owners>
     <projectUrl>http://github.com/digitalcreations/CustomerIOSharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Implementation of Customer.io's write-only API for .NET.</description>
-    <releaseNotes>Support invitation (non-customer) events.</releaseNotes>
-    <copyright>Copyright 2015 Digital Creations AS.</copyright>
+    <releaseNotes>Remove dependency on FubarCoder.RestSharp.Portable</releaseNotes>
+    <copyright>Copyright 2015-2016 Digital Creations AS.</copyright>
     <tags>customer-io customerio email</tags>
     <dependencies>
-      <dependency id="FubarCoder.RestSharp.Portable" version="2.4.2" />
+      <dependency id="Microsoft.Net.Http" version="2.2.29" />
       <dependency id="Newtonsoft.Json" version="6.0.8" />
     </dependencies>
   </metadata>

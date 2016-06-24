@@ -1,13 +1,15 @@
 ﻿namespace CustomerIOSharp
 {
     using System;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using System.Text;
 
     using Newtonsoft.Json;
-
-    using RestSharp.Portable;
+    using Newtonsoft.Json.Converters;
+    using Newtonsoft.Json.Serialization;
 
     public class CustomerIo
     {
@@ -19,19 +21,36 @@
 
         private readonly ICustomerFactory _customerFactory;
 
-        private readonly JsonSerializer _jsonSerializer;
+        private readonly JsonSerializerSettings _jsonSerializerSettings;
 
-        private readonly RestClient _client;
+        private readonly HttpClient _httpClient;
 
-        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory = null, JsonSerializer jsonSerializer = null)
+        public CustomerIo(string siteId, string apiKey, ICustomerFactory customerFactory = null)
         {
             this._customerFactory = customerFactory;
-            this._jsonSerializer = jsonSerializer;
 
-            this._client = new RestClient(Endpoint)
-                {
-                    Authenticator = new FixedHttpBasicAuthenticator(siteId, apiKey)
-                };
+            this._httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(Endpoint),
+            };
+            var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{siteId}:{apiKey}"));
+            this._httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+
+            this._jsonSerializerSettings = new JsonSerializerSettings()
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Include,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
+
+            foreach (var converter in this._jsonSerializerSettings.Converters.OfType<DateTimeConverterBase>().ToList())
+            {
+                this._jsonSerializerSettings.Converters.Remove(converter);
+            }
+
+            this._jsonSerializerSettings.Converters.Add(new UnixTimestampConverter());
+
         }
 
         public async Task IdentifyAsync(ICustomerDetails customer = null)
@@ -46,14 +65,14 @@
             customer = customer ?? this._customerFactory.GetCustomerDetails();
 
             // do not transmit events if we do not have a customer id
-            if (customer == null || customer.Id == null) return;
+            if (customer?.Id == null) return;
 
             await this.CallMethodAsync(MethodCustomer, HttpMethod.Put, customer, customer.Id);
         }
 
         public async Task DeleteCustomerAsync(string customerId = null)
         {
-            if (String.IsNullOrEmpty(customerId) && this._customerFactory == null)
+            if (string.IsNullOrEmpty(customerId) && this._customerFactory == null)
             {
                 throw new ArgumentNullException(
                     "customerId",
@@ -85,16 +104,16 @@
             }
 
             var wrappedData = new TrackedEvent
-                {
-                    Name = eventName,
-                    Data = data,
-                    Timestamp = timestamp
-                };
+            {
+                Name = eventName,
+                Data = data,
+                Timestamp = timestamp
+            };
 
             await this.CallMethodAsync(
-                MethodCustomerEvent, 
-                HttpMethod.Post, 
-                wrappedData, 
+                MethodCustomerEvent,
+                HttpMethod.Post,
+                wrappedData,
                 customerId);
         }
 
@@ -122,25 +141,20 @@
                 wrappedData);
         }
 
-        private async Task CallMethodAsync(string method, HttpMethod httpMethod, object data, string customerId = null)
+        private async Task CallMethodAsync(string resource, HttpMethod httpMethod, object data, string customerId = null)
         {
-            var request = new RestRequest(method)
+            resource = resource.Replace("{customer_id}", customerId);
+            var requestMessage = new HttpRequestMessage(httpMethod, resource)
             {
-                Method = httpMethod,
-                Serializer = new SerializerWrapper(this._jsonSerializer)
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(data, this._jsonSerializerSettings),
+                    Encoding.UTF8,
+                    "application/json")
             };
-
-            if (!string.IsNullOrEmpty(customerId))
+            var result = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+            if (result.StatusCode != HttpStatusCode.OK)
             {
-                request.AddUrlSegment(@"customer_id", customerId);
-            }
-
-            request.AddBody(data);
-
-            var response = await this._client.Execute(request).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new CustomerIoApiException(response.StatusCode);
+                throw new CustomerIoApiException(result.StatusCode);
             }
         }
     }

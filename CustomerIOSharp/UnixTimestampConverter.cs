@@ -7,7 +7,7 @@
 
     public class UnixTimestampConverter : DateTimeConverterBase
     {
-        public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             long val;
             if (value is DateTime)
@@ -22,7 +22,7 @@
             writer.WriteValue(val);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType != JsonToken.Integer)
             {

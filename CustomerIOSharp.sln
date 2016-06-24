@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{57B6FDA7-E0C6-474E-B011-8E1898FE0F27}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{57B6FD
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerIOSharp", "CustomerIOSharp\CustomerIOSharp.csproj", "{EA6DE6CF-6357-4438-A0E1-1CB7A8B7BA8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerIOSharp.Test", "CustomerIOSharp.Test\CustomerIOSharp.Test.csproj", "{67481CD2-A82A-4D44-ACA8-491AF071ED1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,8 +24,10 @@ Global
 		{EA6DE6CF-6357-4438-A0E1-1CB7A8B7BA8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA6DE6CF-6357-4438-A0E1-1CB7A8B7BA8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA6DE6CF-6357-4438-A0E1-1CB7A8B7BA8B}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
+		{67481CD2-A82A-4D44-ACA8-491AF071ED1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67481CD2-A82A-4D44-ACA8-491AF071ED1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67481CD2-A82A-4D44-ACA8-491AF071ED1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67481CD2-A82A-4D44-ACA8-491AF071ED1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

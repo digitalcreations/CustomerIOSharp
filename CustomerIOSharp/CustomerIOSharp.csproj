@@ -34,10 +34,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FixedHttpBasicAuthenticator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomerIO.cs" />
-    <Compile Include="SerializerWrapper.cs" />
     <Compile Include="CustomerDetails.cs" />
     <Compile Include="CustomerIoApiException.cs" />
     <Compile Include="DateTimeExtensions.cs" />
