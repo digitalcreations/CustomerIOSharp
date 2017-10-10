@@ -58,7 +58,7 @@
             if (customer == null && this._customerFactory == null)
             {
                 throw new ArgumentNullException(
-                    "customer",
+                    nameof(customer),
                     "Missing both customer and customer factory, so can not determine who to track");
             }
 
@@ -75,7 +75,7 @@
             if (string.IsNullOrEmpty(customerId) && this._customerFactory == null)
             {
                 throw new ArgumentNullException(
-                    "customerId",
+                    nameof(customerId),
                     "Missing both customerId and customer factory, so can not determine who to track");
             }
 

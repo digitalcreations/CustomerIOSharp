@@ -54,14 +54,14 @@ await customerIo.IdentifyAsync(User.AsCustomer());
 Whatever you do, you will have to provide customer data implementing `ICustomerDetails`. It has only two required properties, but any properties you supply in your implementation will be forwarded to customer.io:
 
 ```cs
-class Customer : ICustomerDetails 
+public class Customer : ICustomerDetails 
 {
     // these two fields are required:
-    string Id { get; set; }
-    string Email { get; set; }
+    public string Id { get; set; }
+    public string Email { get; set; }
     // these are my custom fields:
-    string FirstName { get; set; }
-    string LastName { get; set;
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 }
 ```
 
