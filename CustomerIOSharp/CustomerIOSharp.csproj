@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>CustomerIOSharp</PackageId>
     <Title>Customer.io C# implementation</Title>
     <Description>Implementation of Customer.io's write-only API for .NET.</Description>
