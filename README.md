@@ -71,7 +71,7 @@ Track a custom event by calling `TrackEvent()`. It takes an event name as the fi
 
 ```cs
 await customerIo.TrackEventAsync("signup", new {
-	Group = "trial",
+	UserGroup = "trial",
 	Referrer = "email campaign"
 });
 
@@ -79,7 +79,7 @@ await customerIo.TrackEventAsync("signup", new {
 await customerIo.TrackEventAsync("signup", customerId: "foo");
 ```
 
-Note that these two variables will (by default) be camelcased before being sent to customer.io, so `group` and `referrer` will be available in your transactional campaigns.
+Note that these two variables will be camelcased before being sent to customer.io, so `userGroup` and `referrer` will be available in your transactional campaigns.
 
 ## License
 

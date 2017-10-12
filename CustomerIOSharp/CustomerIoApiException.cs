@@ -5,8 +5,8 @@
 
     public class CustomerIoApiException : Exception
     {
-        public CustomerIoApiException(HttpStatusCode code)
-            : base($"Received status code {(int) code} ({code}) from Customer.io API")
+        public CustomerIoApiException(HttpStatusCode code, string reason)
+            : base($"Received status code {(int) code} ({reason}) from Customer.io API")
         {
         }
     }

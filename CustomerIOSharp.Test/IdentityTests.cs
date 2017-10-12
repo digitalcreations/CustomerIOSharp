@@ -2,12 +2,10 @@
 {
     using System;
     using System.Threading.Tasks;
-
     using Xunit;
 
     public class IdentityTests : AuthorizationClass
     {
-
         [Fact]
         public async Task IdentifyAsyncFailsIfNotGivenIdentity()
         {

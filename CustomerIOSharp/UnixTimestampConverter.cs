@@ -1,7 +1,6 @@
 ﻿namespace CustomerIOSharp
 {
     using System;
-
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
@@ -12,7 +11,7 @@
             long val;
             if (value is DateTime)
             {
-                val = ((DateTime)value).ToUnixTimestamp();
+                val = ((DateTime) value).ToUnixTimestamp();
             }
             else
             {
@@ -22,14 +21,15 @@
             writer.WriteValue(val);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
             if (reader.TokenType != JsonToken.Integer)
             {
                 throw new Exception("Wrong Token Type");
             }
 
-            var seconds = (int)reader.Value;
+            var seconds = (int) reader.Value;
             return seconds.ToDate();
         }
     }

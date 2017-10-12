@@ -4,12 +4,12 @@
     {
         public CustomerDetails(string id, string email)
         {
-            this.Id = id;
-            this.Email = email;
+            Id = id;
+            Email = email;
         }
 
-        public string Id { get; private set; }
+        public string Id { get; }
 
-        public string Email { get; private set; }
+        public string Email { get; }
     }
 }
