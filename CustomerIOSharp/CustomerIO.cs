@@ -12,12 +12,8 @@
 
     public class CustomerIo
     {
-        private const string TrackEndpoint = "https://track.customer.io/api/v1/";
-        private const string ApiEndpoint = "https://api.customer.io/v1/api/";
-        private const string MethodCustomer = "customers/{customer_id}";
-        private const string MethodCustomerEvent = "customers/{customer_id}/events";
-        private const string MethodTriggerBroadcast = "campaigns/{campaign_id}/triggers";                
-        private const string MethodEvent = "events";
+        private const string TrackEndpoint = "https://track.customer.io/api/v1";
+        private const string ApiEndpoint = "https://api.customer.io/v1/api";
 
         private readonly ICustomerFactory _customerFactory;
 
@@ -29,10 +25,9 @@
         {
             _customerFactory = customerFactory;
 
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(TrackEndpoint)
-            };
+            _httpClient = new HttpClient();
+
+
             var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{siteId}:{apiKey}"));
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
@@ -66,7 +61,7 @@
             // do not transmit events if we do not have a customer id
             if (customer?.Id == null) return;
 
-            var resource = MethodCustomer.Replace("{customer_id}", customer.Id);
+            var resource = $"{TrackEndpoint}/customers/{customer.Id}";
 
             await CallMethodAsync(resource, HttpMethod.Put, customer).ConfigureAwait(false);
         }
@@ -85,7 +80,7 @@
             // do not transmit events if we do not have a customer id
             if (customerId == null) return;
 
-            var resource = MethodCustomer.Replace("{customer_id}", customerId);
+            var resource = $"{TrackEndpoint}/customers/{customerId}";
 
             await CallMethodAsync(resource, HttpMethod.Delete, null).ConfigureAwait(false);
         }
@@ -99,8 +94,7 @@
         /// <param name="customerId">Specify customer id this is valid for, or null to look it up using the customer factory.</param>
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null,
-            string customerId = null)
+        public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null, string customerId = null)
         {
             if (string.IsNullOrEmpty(customerId) && _customerFactory != null)
             {
@@ -114,7 +108,7 @@
                 Timestamp = timestamp
             };
 
-            var resource = MethodCustomerEvent.Replace("{customer_id}", customerId);
+            var resource = $"{TrackEndpoint}/customers/{customerId}/events";
 
             await CallMethodAsync(
                 resource,
@@ -141,8 +135,10 @@
                 Timestamp = timestamp
             };
 
+            var resource = $"{TrackEndpoint}/events";
+
             await CallMethodAsync(
-                MethodEvent,
+                resource,
                 HttpMethod.Post,
                 wrappedData).ConfigureAwait(false);
         }
@@ -157,28 +153,25 @@
         /// <see cref="https://learn.customer.io/documentation/api-triggered-broadcast-setup.html#step-1-define-recipients" />        
         /// <returns>Nothing if successful, throws if failed</returns>
         /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-        public async Task TriggerBroadcastAsync(string campaignId, object data = null, object recipientFilter = null)
+        public async Task TriggerBroadcastAsync(int campaignId, object data = null, object recipientFilter = null)
         {
             var wrappedData = new TriggerBroadcast
-            {                
+            {
                 Data = data,
                 Recipients = recipientFilter
             };
 
-            //This line is important as we need to use the alternative endpoint.
-            this._httpClient.BaseAddress = new Uri(ApiEndpoint);
-                 
-            var resource = MethodTriggerBroadcast.Replace("{campaign_id}", campaignId);  
+            var resource = $"{ApiEndpoint}/campaigns/{campaignId.ToString()}/triggers";
 
             await CallMethodAsync(
                 resource,
                 HttpMethod.Post,
                 wrappedData).ConfigureAwait(false);
-        }
-        
 
-        private async Task CallMethodAsync(string resource, HttpMethod httpMethod, object data
-         )
+        }
+
+
+        private async Task CallMethodAsync(string resource, HttpMethod httpMethod, object data)
         {
 
             var requestMessage = new HttpRequestMessage(httpMethod, resource)

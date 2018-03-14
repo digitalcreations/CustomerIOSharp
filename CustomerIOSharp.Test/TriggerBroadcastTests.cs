@@ -10,7 +10,7 @@
         public async Task TriggerBroadcast()
         {
             var customerIo = new CustomerIo(SiteId, ApiKey);
-            await customerIo.TriggerBroadcastAsync("17", new
+            await customerIo.TriggerBroadcastAsync(18, new
                 {
                     Name = "Name 1",
                     TestKey = "Value 2"
@@ -22,7 +22,7 @@
         public async Task TriggerBroadcastWithRecipientFilter()
         {
             var customerIo = new CustomerIo(SiteId, ApiKey);
-            await customerIo.TriggerBroadcastAsync("17", new
+            await customerIo.TriggerBroadcastAsync(18, new
             {
                 Name = "Name 1",
                 TestKey = "Value 2"

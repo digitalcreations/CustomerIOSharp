@@ -4,7 +4,6 @@ namespace CustomerIOSharp
 
     internal class TriggerBroadcast
     {
-
         public object Data { get; set; }
         public object Recipients { get; set; }
     }
