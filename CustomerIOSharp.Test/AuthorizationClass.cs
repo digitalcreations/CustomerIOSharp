@@ -17,7 +17,12 @@
             }
         }
 
-        public static string SiteId => Environment.GetEnvironmentVariable("CustomerIOSharp_SiteId") ?? "";
-        public static string ApiKey => Environment.GetEnvironmentVariable("CustomerIOSharp_ApiKey") ?? "";
+        public static string SiteId => Environment.GetEnvironmentVariable("CustomerIOSharp_SiteId") ?? string.Empty;
+
+        public static string ApiKey => Environment.GetEnvironmentVariable("CustomerIOSharp_ApiKey") ?? string.Empty;
+
+        public static int BroadcastCampaignId => int.Parse(Environment.GetEnvironmentVariable("CustomerIOSharp_BroadcastCampaignId"));
+
+        public static int BroadcastSegmentId => int.Parse(Environment.GetEnvironmentVariable("CustomerIOSharp_BroadcastSegmentId"));
     }
 }
