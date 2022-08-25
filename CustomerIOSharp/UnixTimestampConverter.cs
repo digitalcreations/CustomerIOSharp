@@ -1,35 +1,40 @@
 ﻿namespace CustomerIOSharp;
 
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-public class UnixTimestampConverter : DateTimeConverterBase
+/// <seealso cref="https://stackoverflow.com/a/70225152/1606">Adapted from this answer on Stack Overflow.</seealso>
+public class UnixToNullableDateTimeConverter : JsonConverter<DateTime?>
 {
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override bool HandleNull => true;
+    public bool? IsFormatInSeconds { get; set; } = null;
+
+    public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        long val;
-        if (value is DateTime)
+        if (reader.TryGetInt64(out var time))
         {
-            val = ((DateTime) value).ToUnixTimestamp();
+            // if 'IsFormatInSeconds' is unspecified, then deduce the correct type based on whether it can be represented in the allowed .net DateTime range
+            if (IsFormatInSeconds == true || IsFormatInSeconds == null && time > _unixMinSeconds && time < _unixMaxSeconds)
+                return DateTimeOffset.FromUnixTimeSeconds(time).LocalDateTime;
+            return DateTimeOffset.FromUnixTimeMilliseconds(time).LocalDateTime;
+        }
+
+        return null;
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime? value, JsonSerializerOptions options)
+    {
+        if (value.HasValue)
+        {
+            writer.WriteNumberValue(value.Value.ToUnixTimestamp());
         }
         else
         {
-            throw new Exception("Expected date object value.");
+            writer.WriteNullValue();
         }
-
-        writer.WriteValue(val);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
-        JsonSerializer serializer)
-    {
-        if (reader.TokenType != JsonToken.Integer)
-        {
-            throw new Exception("Wrong Token Type");
-        }
-
-        var seconds = (int) reader.Value;
-        return seconds.ToDate();
-    }
+    private static readonly long _unixMinSeconds = DateTimeOffset.MinValue.ToUnixTimeSeconds() - DateTimeOffset.UnixEpoch.ToUnixTimeSeconds(); // -62_135_596_800
+    private static readonly long _unixMaxSeconds = DateTimeOffset.MaxValue.ToUnixTimeSeconds() - DateTimeOffset.UnixEpoch.ToUnixTimeSeconds(); // 253_402_300_799
 }

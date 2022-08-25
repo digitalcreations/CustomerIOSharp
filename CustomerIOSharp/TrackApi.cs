@@ -77,12 +77,7 @@ public class TrackApi
             customerId = customerId ?? _customerFactory.GetCustomerId();
         }
 
-        var wrappedData = new TrackedEvent
-        {
-            Name = eventName,
-            Data = data,
-            Timestamp = timestamp
-        };
+        var wrappedData = new TrackedEvent(eventName, data, timestamp);
 
         var resource = $"{TrackEndpoint}/customers/{customerId}/events";
 
@@ -105,12 +100,7 @@ public class TrackApi
     /// 
     public async Task TrackNonCustomerEventAsync(string eventName, object data = null, DateTime? timestamp = null)
     {
-        var wrappedData = new TrackedEvent
-        {
-            Name = eventName,
-            Data = data,
-            Timestamp = timestamp
-        };
+        var wrappedData = new TrackedEvent(eventName, data, timestamp);
 
         var resource = $"{TrackEndpoint}/events";
 

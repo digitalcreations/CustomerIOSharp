@@ -34,7 +34,7 @@ public class AppApi
             Recipients = recipientFilter
         };
 
-        var resource = $"{ApiEndpoint}/campaigns/{campaignId.ToString()}/triggers";
+        var resource = $"{ApiEndpoint}/campaigns/{campaignId}/triggers";
 
         await Utilities.CallMethodAsync(
             _httpClient,

@@ -1,5 +1,6 @@
 ﻿namespace CustomerIOSharp.Test;
 
+using System;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,7 +15,7 @@ public class EventTests : AuthorizationClass
                 Group = "trial",
                 Referrer = "email campaign"
             },
-            null,
+            new DateTime(2022, 8, 25),
             "from_static_identity");
     }
 

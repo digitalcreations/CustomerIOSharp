@@ -1,37 +1,28 @@
 ﻿namespace CustomerIOSharp;
 
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 internal static class Utilities
 {
     static Utilities()
     {
-        var settings = new JsonSerializerSettings()
+        var options = new JsonSerializerOptions()
         {
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Include,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            AllowTrailingCommas = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        foreach (var converter in settings.Converters.OfType<DateTimeConverterBase>().ToList())
-        {
-            settings.Converters.Remove(converter);
-        }
+        options.Converters.Clear();
+        options.Converters.Add(new UnixToNullableDateTimeConverter());
 
-        settings.Converters.Add(new UnixTimestampConverter());
-
-        JsonSerializerSettings = settings;
+        JsonSerializerOptions = options;
     }
 
-    internal static JsonSerializerSettings JsonSerializerSettings { get; }
+    internal static JsonSerializerOptions JsonSerializerOptions { get; }
 
     internal static async Task CallMethodAsync(HttpClient client, string resource, HttpMethod httpMethod, object data)
     {
@@ -39,7 +30,7 @@ internal static class Utilities
         var requestMessage = new HttpRequestMessage(httpMethod, resource)
         {
             Content = new StringContent(
-                JsonConvert.SerializeObject(data, Utilities.JsonSerializerSettings),
+                JsonSerializer.Serialize<object>(data, Utilities.JsonSerializerOptions),
                 Encoding.UTF8,
                 "application/json")
         };
