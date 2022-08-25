@@ -8,7 +8,7 @@
         [Fact]
         public async Task TriggerBroadcast()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new AppApi(AppApiKey);
             await customerIo.TriggerBroadcastAsync(
                 BroadcastCampaignId, 
                 new
@@ -21,7 +21,7 @@
         [Fact]
         public async Task TriggerBroadcastWithRecipientFilter()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new AppApi(AppApiKey);
             await customerIo.TriggerBroadcastAsync(
                 BroadcastCampaignId, 
                 new

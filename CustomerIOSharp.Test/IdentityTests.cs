@@ -9,28 +9,28 @@
         [Fact]
         public async Task IdentifyAsyncFailsIfNotGivenIdentity()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new TrackApi(SiteId, ApiKey);
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await customerIo.IdentifyAsync());
         }
 
         [Fact]
         public async Task IdentifyAsyncSucceedsWithStaticIdentity()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new TrackApi(SiteId, ApiKey);
             await customerIo.IdentifyAsync(new CustomerDetails("from_static_identity", "static@example.com"));
         }
 
         [Fact]
         public async Task IdentifyAsyncSucceedsWithIdentityFactory()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey, new IdentityFactory());
+            var customerIo = new TrackApi(SiteId, ApiKey, new IdentityFactory());
             await customerIo.IdentifyAsync();
         }
 
         [Fact]
         public async Task IdentifyAsyncSucceedsWithIdentityFactoryAndCustomCustomerDetails()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey, new IdentityFactoryWithExtraCustomerDetails());
+            var customerIo = new TrackApi(SiteId, ApiKey, new IdentityFactoryWithExtraCustomerDetails());
             await customerIo.IdentifyAsync();
         }
 
