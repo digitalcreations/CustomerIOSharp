@@ -22,4 +22,10 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
     - name: Test
+      env:
+        CIOS_SITE_ID: ${{ secrets.CIOS_SITE_ID }}
+        CIOS_API_KEY: ${{ secrets.CIOS_API_KEY }}
+        CIOS_BROADCAST_CAMPAIGN_ID: ${{ secrets.CIOS_BROADCAST_CAMPAIGN_ID }}
+        CIOS_BROADCAST_SEGMENT_ID: ${{ secrets.CIOS_BROADCAST_SEGMENT_ID }}
+        CIOS_APP_API_KEY: ${{ secrets.CIOS_APP_API_KEY }}
       run: dotnet test --no-build --verbosity normal -c Release
