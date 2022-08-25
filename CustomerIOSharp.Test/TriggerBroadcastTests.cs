@@ -5,12 +5,12 @@
 
     public class TriggerBroadcastTests : AuthorizationClass
     {
-        [Fact]
+        [Fact(Skip = "Test is skipped because of rate limiting from customer.io, and the test with a segment id below is more useful.")]
         public async Task TriggerBroadcast()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new AppApi(AppApiKey);
             await customerIo.TriggerBroadcastAsync(
-                BroadcastCampaignId, 
+                BroadcastCampaignId,
                 new
                 {
                     Name = "Name 1",
@@ -21,7 +21,7 @@
         [Fact]
         public async Task TriggerBroadcastWithRecipientFilter()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new AppApi(AppApiKey);
             await customerIo.TriggerBroadcastAsync(
                 BroadcastCampaignId, 
                 new

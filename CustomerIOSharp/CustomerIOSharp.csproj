@@ -1,19 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net6</TargetFrameworks>
     <PackageId>CustomerIOSharp</PackageId>
     <Title>Customer.io C# implementation</Title>
     <Description>Implementation of Customer.io's write-only API for .NET.</Description>
-    <Copyright>Copyright 2015-2017 Digital Creations AS.</Copyright>
+    <Copyright>Copyright 2015-2022 Digital Creations AS.</Copyright>
     <RepositoryUrl>https://github.com/digitalcreations/CustomerIOSharp</RepositoryUrl>
     <PackageTags>customer-io customerio email</PackageTags>
     <Authors>vegardlarsen;francisrath</Authors>
-    <PackageReleaseNotes>Removes dependency on FubarCoder.RestSharp.Portable, and is now targeting netstandard 1.1</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
   </ItemGroup>
 
 </Project>

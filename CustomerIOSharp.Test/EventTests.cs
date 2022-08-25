@@ -8,7 +8,7 @@
         [Fact]
         public async Task TrackEvent()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new TrackApi(SiteId, ApiKey);
             await customerIo.TrackEventAsync("signup", new
                 {
                     Group = "trial",
@@ -21,7 +21,7 @@
         [Fact]
         public async Task TrackEventFailsWithoutIdentity()
         {
-            var customerIo = new CustomerIo(SiteId, ApiKey);
+            var customerIo = new TrackApi(SiteId, ApiKey);
             await Assert.ThrowsAsync<CustomerIoApiException>(async () =>
                 await customerIo.TrackEventAsync("signup", new
                 {
