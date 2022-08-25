@@ -1,10 +1,9 @@
-namespace CustomerIOSharp
-{
-    using System;
+namespace CustomerIOSharp;
 
-    internal class TriggerBroadcast
-    {
-        public object Data { get; set; }
-        public object Recipients { get; set; }
-    }
+using System;
+
+internal class TriggerBroadcast
+{
+    public object Data { get; set; }
+    public object Recipients { get; set; }
 }

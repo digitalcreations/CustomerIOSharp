@@ -1,36 +1,35 @@
-﻿namespace CustomerIOSharp
+﻿namespace CustomerIOSharp;
+
+using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+public class UnixTimestampConverter : DateTimeConverterBase
 {
-    using System;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
-
-    public class UnixTimestampConverter : DateTimeConverterBase
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        long val;
+        if (value is DateTime)
         {
-            long val;
-            if (value is DateTime)
-            {
-                val = ((DateTime) value).ToUnixTimestamp();
-            }
-            else
-            {
-                throw new Exception("Expected date object value.");
-            }
-
-            writer.WriteValue(val);
+            val = ((DateTime) value).ToUnixTimestamp();
+        }
+        else
+        {
+            throw new Exception("Expected date object value.");
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
-            JsonSerializer serializer)
-        {
-            if (reader.TokenType != JsonToken.Integer)
-            {
-                throw new Exception("Wrong Token Type");
-            }
+        writer.WriteValue(val);
+    }
 
-            var seconds = (int) reader.Value;
-            return seconds.ToDate();
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+        JsonSerializer serializer)
+    {
+        if (reader.TokenType != JsonToken.Integer)
+        {
+            throw new Exception("Wrong Token Type");
         }
+
+        var seconds = (int) reader.Value;
+        return seconds.ToDate();
     }
 }

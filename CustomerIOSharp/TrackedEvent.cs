@@ -1,13 +1,12 @@
-namespace CustomerIOSharp
+namespace CustomerIOSharp;
+
+using System;
+
+internal class TrackedEvent
 {
-    using System;
+    public string Name { get; set; }
+    
+    public object Data { get; set; }
 
-    internal class TrackedEvent
-    {
-        public string Name { get; set; }
-        
-        public object Data { get; set; }
-
-        public DateTime? Timestamp { get; set; }
-    }
+    public DateTime? Timestamp { get; set; }
 }

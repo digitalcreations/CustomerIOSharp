@@ -1,19 +1,18 @@
-﻿namespace CustomerIOSharp
+﻿namespace CustomerIOSharp;
+
+using System;
+
+internal static class DateTimeExtensions
 {
-    using System;
+    private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
 
-    internal static class DateTimeExtensions
+    public static int ToUnixTimestamp(this DateTime value)
     {
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
+        return Convert.ToInt32((value - Epoch).TotalSeconds);
+    }
 
-        public static int ToUnixTimestamp(this DateTime value)
-        {
-            return Convert.ToInt32((value - Epoch).TotalSeconds);
-        }
-
-        public static DateTime ToDate(this int value)
-        {
-            return Epoch.AddSeconds(value);
-        }
+    public static DateTime ToDate(this int value)
+    {
+        return Epoch.AddSeconds(value);
     }
 }
