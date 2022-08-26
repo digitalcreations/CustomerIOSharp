@@ -24,20 +24,20 @@ internal static class Utilities
 
     internal static JsonSerializerOptions JsonSerializerOptions { get; }
 
-    internal static async Task CallMethodAsync(HttpClient client, string resource, HttpMethod httpMethod, object data)
+    internal static async Task CallMethodAsync(HttpClient client, string resource, HttpMethod httpMethod, object? data)
     {
 
         var requestMessage = new HttpRequestMessage(httpMethod, resource)
         {
             Content = new StringContent(
-                JsonSerializer.Serialize<object>(data, Utilities.JsonSerializerOptions),
+                data == null ? string.Empty : JsonSerializer.Serialize<object>(data, Utilities.JsonSerializerOptions),
                 Encoding.UTF8,
                 "application/json")
         };
         var result = await client.SendAsync(requestMessage).ConfigureAwait(false);
         if (result.StatusCode != HttpStatusCode.OK)
         {
-            throw new CustomerIoApiException(result.StatusCode, result.ReasonPhrase);
+            throw new CustomerIoApiException(result.StatusCode, result?.ReasonPhrase ?? "No reason phrase provided");
         }
     }
 }

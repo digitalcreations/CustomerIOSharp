@@ -26,13 +26,9 @@ public class AppApi
     /// <see cref="https://learn.customer.io/documentation/api-triggered-broadcast-setup.html#step-1-define-recipients" />        
     /// <returns>Nothing if successful, throws if failed</returns>
     /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-    public async Task TriggerBroadcastAsync(int campaignId, object data = null, object recipientFilter = null)
+    public async Task TriggerBroadcastAsync(int campaignId, object? data = null, object? recipientFilter = null)
     {
-        var wrappedData = new TriggerBroadcast
-        {
-            Data = data,
-            Recipients = recipientFilter
-        };
+        var wrappedData = new TriggerBroadcast(data, recipientFilter);
 
         var resource = $"{ApiEndpoint}/campaigns/{campaignId}/triggers";
 

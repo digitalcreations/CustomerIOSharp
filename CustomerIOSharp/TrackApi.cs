@@ -9,11 +9,11 @@ public class TrackApi
 {
     private const string TrackEndpoint = "https://track.customer.io/api/v1";
 
-    private readonly ICustomerFactory _customerFactory;
+    private readonly ICustomerFactory? _customerFactory;
 
     private readonly HttpClient _httpClient;
 
-    public TrackApi(string siteId, string apiKey, ICustomerFactory customerFactory = null)
+    public TrackApi(string siteId, string apiKey, ICustomerFactory? customerFactory = null)
     {
         _customerFactory = customerFactory;
 
@@ -23,16 +23,9 @@ public class TrackApi
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
     }
 
-    public async Task IdentifyAsync(ICustomerDetails customer = null)
+    public async Task IdentifyAsync(ICustomerDetails? customer = null)
     {
-        if (customer == null && _customerFactory == null)
-        {
-            throw new ArgumentNullException(
-                nameof(customer),
-                "Missing both customer and customer factory, so can not determine who to track");
-        }
-
-        customer = customer ?? _customerFactory.GetCustomerDetails();
+        customer = EnsureCustomerOrThrow(customer);
 
         // do not transmit events if we do not have a customer id
         if (customer?.Id == null) return;
@@ -42,16 +35,9 @@ public class TrackApi
         await Utilities.CallMethodAsync(_httpClient, resource, HttpMethod.Put, customer).ConfigureAwait(false);
     }
 
-    public async Task DeleteCustomerAsync(string customerId = null)
+    public async Task DeleteCustomerAsync(string? customerId = null)
     {
-        if (string.IsNullOrEmpty(customerId) && _customerFactory == null)
-        {
-            throw new ArgumentNullException(
-                nameof(customerId),
-                "Missing both customerId and customer factory, so can not determine who to track");
-        }
-
-        customerId = customerId ?? _customerFactory.GetCustomerId();
+        customerId = EnsureCustomerIdOrThrow(customerId);
 
         // do not transmit events if we do not have a customer id
         if (customerId == null) return;
@@ -70,12 +56,9 @@ public class TrackApi
     /// <param name="customerId">Specify customer id this is valid for, or null to look it up using the customer factory.</param>
     /// <returns>Nothing if successful, throws if failed</returns>
     /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
-    public async Task TrackEventAsync(string eventName, object data = null, DateTime? timestamp = null, string customerId = null)
+    public async Task TrackEventAsync(string eventName, object? data = null, DateTime? timestamp = null, string? customerId = null)
     {
-        if (string.IsNullOrEmpty(customerId) && _customerFactory != null)
-        {
-            customerId = customerId ?? _customerFactory.GetCustomerId();
-        }
+        customerId = EnsureCustomerIdOrThrow(customerId);
 
         var wrappedData = new TrackedEvent(eventName, data, timestamp);
 
@@ -98,7 +81,7 @@ public class TrackApi
     /// <returns>Nothing if successful, throws if failed</returns>
     /// <exception cref="CustomerIoApiException">If any code besides 200 OK is returned from the server.</exception>
     /// 
-    public async Task TrackNonCustomerEventAsync(string eventName, object data = null, DateTime? timestamp = null)
+    public async Task TrackNonCustomerEventAsync(string eventName, object? data = null, DateTime? timestamp = null)
     {
         var wrappedData = new TrackedEvent(eventName, data, timestamp);
 
@@ -109,5 +92,45 @@ public class TrackApi
             resource,
             HttpMethod.Post,
             wrappedData).ConfigureAwait(false);
+    }
+
+    private string EnsureCustomerIdOrThrow(string? customerId)
+    {
+        if (string.IsNullOrEmpty(customerId) && _customerFactory == null)
+        {
+            throw new ArgumentNullException(
+                nameof(customerId),
+                "Missing both customerId and customer factory, so can not determine who to track");
+        }
+
+        customerId = customerId ?? _customerFactory?.GetCustomerId();
+        if (string.IsNullOrEmpty(customerId))
+        {
+            throw new ArgumentNullException(
+                nameof(customerId), 
+                "Could not determine customer ID from either provided parameter or customer factory.");
+        }
+
+        return customerId;
+    }
+
+    private ICustomerDetails EnsureCustomerOrThrow(ICustomerDetails? customer)
+    {
+        if (customer == null && _customerFactory == null)
+        {
+            throw new ArgumentNullException(
+                nameof(customer),
+                "Missing both customer and customer factory, so can not determine who to track");
+        }
+
+        customer = customer ?? _customerFactory?.GetCustomerDetails();
+        if (customer == null)
+        {
+            throw new ArgumentNullException(
+                nameof(customer),
+                "Could not determine customer ID from either provided parameter or customer factory.");
+        }
+
+        return customer;
     }
 }

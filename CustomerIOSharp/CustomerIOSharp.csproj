@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6</TargetFrameworks>
@@ -9,6 +9,7 @@
     <RepositoryUrl>https://github.com/digitalcreations/CustomerIOSharp</RepositoryUrl>
     <PackageTags>customer-io customerio email</PackageTags>
     <Authors>vegardlarsen;francisrath</Authors>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

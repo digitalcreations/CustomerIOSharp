@@ -1,9 +1,3 @@
 namespace CustomerIOSharp;
 
-using System;
-
-internal class TriggerBroadcast
-{
-    public object Data { get; set; }
-    public object Recipients { get; set; }
-}
+internal readonly record struct TriggerBroadcast(object? Data, object? Recipients);
