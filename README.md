@@ -17,12 +17,12 @@ We recommend you implement the `ICustomerFactory` interface yourself. Here is a 
 ```cs
     public class CustomerFactory : ICustomerFactory
     {
-        public ICustomerDetails GetCustomerDetails()
+        public Task<ICustomerDetails> GetCustomerDetailsAsync()
         {
             var user = MembershipHelper.GetCurrentUser();
-            return user == null 
+            return Task.FromResult(user == null 
                 ? null 
-                : user.AsCustomer();
+                : user.AsCustomer());
         }
 
         public string GetCustomerId()

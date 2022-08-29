@@ -42,12 +42,12 @@ public class IdentityTests : AuthorizationClass
 
         public string GetCustomerId() => CustomerId;
 
-        public ICustomerDetails GetCustomerDetails() => new Customer
+        public Task<ICustomerDetails> GetCustomerDetailsAsync() => Task.FromResult<ICustomerDetails>(new Customer
         {
             Id = CustomerId,
             Email = CustomerEmail,
             Name = CustomerName
-        };
+        });
 
         private class Customer : ICustomerDetails
         {
@@ -63,6 +63,6 @@ public class IdentityTests : AuthorizationClass
         private const string CustomerEmail = "factory@example.com";
 
         public string GetCustomerId() => CustomerId;
-        public ICustomerDetails GetCustomerDetails() => new CustomerDetails(CustomerId, CustomerEmail);
+        public Task<ICustomerDetails> GetCustomerDetailsAsync() => Task.FromResult<ICustomerDetails>(new CustomerDetails(CustomerId, CustomerEmail));
     }
 }

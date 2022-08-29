@@ -25,7 +25,7 @@ public class TrackApi
 
     public async Task IdentifyAsync(ICustomerDetails? customer = null)
     {
-        customer = EnsureCustomerOrThrow(customer);
+        customer = await EnsureCustomerOrThrowAsync(customer);
 
         // do not transmit events if we do not have a customer id
         if (customer?.Id == null) return;
@@ -112,7 +112,7 @@ public class TrackApi
         return customerId;
     }
 
-    private ICustomerDetails EnsureCustomerOrThrow(ICustomerDetails? customer)
+    private async Task<ICustomerDetails> EnsureCustomerOrThrowAsync(ICustomerDetails? customer)
     {
         if (customer == null && _customerFactory == null)
         {
@@ -121,7 +121,7 @@ public class TrackApi
                 "Missing both customer and customer factory, so can not determine who to track");
         }
 
-        customer = customer ?? _customerFactory?.GetCustomerDetails();
+        customer = customer ?? await _customerFactory?.GetCustomerDetailsAsync();
         if (customer == null)
         {
             throw new ArgumentNullException(
