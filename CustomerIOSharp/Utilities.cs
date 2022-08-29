@@ -35,9 +35,7 @@ internal static class Utilities
                 "application/json")
         };
         var result = await client.SendAsync(requestMessage).ConfigureAwait(false);
-        if (result.StatusCode != HttpStatusCode.OK)
-        {
-            throw new CustomerIoApiException(result.StatusCode, result?.ReasonPhrase ?? "No reason phrase provided");
-        }
+
+        result.EnsureSuccessStatusCode();
     }
 }
