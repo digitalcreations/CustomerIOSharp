@@ -32,7 +32,7 @@ public class TrackApi
 
         var resource = $"{TrackEndpoint}/customers/{customer.Id}";
 
-        await Utilities.CallMethodAsync(_httpClient, resource, HttpMethod.Put, customer).ConfigureAwait(false);
+        await _httpClient.CallJsonEndpointAsync(resource, HttpMethod.Put, customer).ConfigureAwait(false);
     }
 
     public async Task DeleteCustomerAsync(string? customerId = null)
@@ -44,7 +44,7 @@ public class TrackApi
 
         var resource = $"{TrackEndpoint}/customers/{customerId}";
 
-        await Utilities.CallMethodAsync(_httpClient, resource, HttpMethod.Delete, null).ConfigureAwait(false);
+        await _httpClient.CallJsonEndpointAsync(resource, HttpMethod.Delete, null).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -64,8 +64,7 @@ public class TrackApi
 
         var resource = $"{TrackEndpoint}/customers/{customerId}/events";
 
-        await Utilities.CallMethodAsync(
-            _httpClient,
+        await _httpClient.CallJsonEndpointAsync(
             resource,
             HttpMethod.Post,
             wrappedData).ConfigureAwait(false);
@@ -87,8 +86,7 @@ public class TrackApi
 
         var resource = $"{TrackEndpoint}/events";
 
-        await Utilities.CallMethodAsync(
-            _httpClient,
+        await _httpClient.CallJsonEndpointAsync(
             resource,
             HttpMethod.Post,
             wrappedData).ConfigureAwait(false);

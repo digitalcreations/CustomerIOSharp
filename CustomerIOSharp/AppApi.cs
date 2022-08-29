@@ -32,8 +32,7 @@ public class AppApi
 
         var resource = $"{ApiEndpoint}/campaigns/{campaignId}/triggers";
 
-        await Utilities.CallMethodAsync(
-            _httpClient,
+        await _httpClient.CallJsonEndpointAsync(
             resource,
             HttpMethod.Post,
             wrappedData).ConfigureAwait(false);

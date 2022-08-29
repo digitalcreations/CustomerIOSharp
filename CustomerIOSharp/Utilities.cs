@@ -1,9 +1,5 @@
 ﻿namespace CustomerIOSharp;
 
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text;
 using System.Text.Json;
 
 internal static class Utilities
@@ -23,19 +19,4 @@ internal static class Utilities
     }
 
     internal static JsonSerializerOptions JsonSerializerOptions { get; }
-
-    internal static async Task CallMethodAsync(HttpClient client, string resource, HttpMethod httpMethod, object? data)
-    {
-
-        var requestMessage = new HttpRequestMessage(httpMethod, resource)
-        {
-            Content = new StringContent(
-                data == null ? string.Empty : JsonSerializer.Serialize<object>(data, Utilities.JsonSerializerOptions),
-                Encoding.UTF8,
-                "application/json")
-        };
-        var result = await client.SendAsync(requestMessage).ConfigureAwait(false);
-
-        result.EnsureSuccessStatusCode();
-    }
 }
