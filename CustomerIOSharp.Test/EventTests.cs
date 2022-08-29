@@ -1,6 +1,7 @@
 ﻿namespace CustomerIOSharp.Test;
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -23,7 +24,7 @@ public class EventTests : AuthorizationClass
     public async Task TrackEventFailsWithoutIdentity()
     {
         var customerIo = new TrackApi(SiteId, ApiKey);
-        await Assert.ThrowsAsync<CustomerIoApiException>(async () =>
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
             await customerIo.TrackEventAsync("signup", new
             {
                 Group = "trial",
