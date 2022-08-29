@@ -42,19 +42,9 @@ public class IdentityTests : AuthorizationClass
 
         public string GetCustomerId() => CustomerId;
 
-        public Task<ICustomerDetails> GetCustomerDetailsAsync() => Task.FromResult<ICustomerDetails>(new Customer
-        {
-            Id = CustomerId,
-            Email = CustomerEmail,
-            Name = CustomerName
-        });
+        public Task<ICustomerDetails> GetCustomerDetailsAsync() => Task.FromResult<ICustomerDetails>(new Customer(CustomerId, CustomerEmail,CustomerName));
 
-        private class Customer : ICustomerDetails
-        {
-            public string Id { get; set; }
-            public string Email { get; set; }
-            public string Name { get; set; }
-        }
+        private record Customer(string Id, string Email, string Name) : ICustomerDetails;
     }
 
     private class IdentityFactory : ICustomerFactory
@@ -63,6 +53,7 @@ public class IdentityTests : AuthorizationClass
         private const string CustomerEmail = "factory@example.com";
 
         public string GetCustomerId() => CustomerId;
+
         public Task<ICustomerDetails> GetCustomerDetailsAsync() => Task.FromResult<ICustomerDetails>(new CustomerDetails(CustomerId, CustomerEmail));
     }
 }
